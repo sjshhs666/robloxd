@@ -1,0 +1,920 @@
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/9kn-1/LocalredzzUi/refs/heads/main/Redz.txt"))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "飞天剑云，此脚本完全免费 - 包含99天功能",
+    SubTitle = "FTJY"
+})
+
+-- ================================
+-- 99天功能部分
+-- ================================
+
+-- 创建99天标签页
+local Day99Tab = Window:MakeTab({
+    Title = "99天功能",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- 定义默认颜色和透明度（全局变量，只定义一次）
+local fillColor = Color3.fromRGB(0, 255, 0)  -- 默认绿色
+local outlineColor = Color3.new(1, 1, 1)     -- 默认白色
+local transparency = 0.4                     -- 默认40%透明度
+
+-- 物品透视功能
+Day99Tab:AddSection("物品透视")
+
+-- 透视兔子脚
+Day99Tab:AddToggle({
+    Name = "透视兔子脚",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Bunny Foot"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.BunnyFootESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示兔子脚",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Bunny Foot" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.BunnyFootESPConnection then
+                _G.BunnyFootESPConnection:Disconnect()
+                _G.BunnyFootESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示兔子脚",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 透视胡萝卜
+Day99Tab:AddToggle({
+    Name = "透视胡萝卜",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Carrot"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.CarrotESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示胡萝卜",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Carrot" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.CarrotESPConnection then
+                _G.CarrotESPConnection:Disconnect()
+                _G.CarrotESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示胡萝卜",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 透视坏风扇
+Day99Tab:AddToggle({
+    Name = "透视坏风扇",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Broken Fan"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.FanESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示坏风扇",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Broken Fan" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.FanESPConnection then
+                _G.FanESPConnection:Disconnect()
+                _G.FanESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示坏风扇",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 透视煤
+Day99Tab:AddToggle({
+    Name = "透视煤",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Coal"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.CoalESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示煤",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Coal" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.CoalESPConnection then
+                _G.CoalESPConnection:Disconnect()
+                _G.CoalESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示煤",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 透视物品箱
+Day99Tab:AddToggle({
+    Name = "透视物品箱",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Item Chest"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.ChestESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示物品箱",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Item Chest" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.ChestESPConnection then
+                _G.ChestESPConnection:Disconnect()
+                _G.ChestESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示物品箱",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 透视燃料罐
+Day99Tab:AddToggle({
+    Name = "透视燃料罐",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local targetItemName = "Fuel Canister"
+
+            local function createESP(item)
+                if item.Name == targetItemName and not item:FindFirstChild("ESP_Highlight") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Highlight"
+                    highlight.Adornee = item
+                    highlight.FillColor = fillColor
+                    highlight.FillTransparency = transparency
+                    highlight.OutlineColor = outlineColor
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = item
+                end
+            end
+
+            for _, item in pairs(workspace:GetDescendants()) do
+                createESP(item)
+            end
+
+            _G.FuelESPConnection = workspace.DescendantAdded:Connect(function(item)
+                task.wait(0.1)
+                createESP(item)
+            end)
+
+            OrionLib:MakeNotification({
+                Name = "透视已激活",
+                Content = "正在高亮显示燃料罐",
+                Time = 3
+            })
+        else
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Fuel Canister" and item:FindFirstChild("ESP_Highlight") then
+                    item.ESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.FuelESPConnection then
+                _G.FuelESPConnection:Disconnect()
+                _G.FuelESPConnection = nil
+            end
+
+            OrionLib:MakeNotification({
+                Name = "透视已关闭",
+                Content = "已停止高亮显示燃料罐",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- 传送功能
+Day99Tab:AddSection("传送功能")
+
+-- 通用传送函数
+local function teleportToItem(itemName, displayName)
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then
+        OrionLib:MakeNotification({
+            Name = "传送失败",
+            Content = "角色未找到",
+            Time = 3
+        })
+        return
+    end
+
+    local hrp = character.HumanoidRootPart
+    local closestItem = nil
+    local minDistance = math.huge
+
+    for _, item in pairs(workspace:GetDescendants()) do
+        if item.Name == itemName then
+            local primaryPart = item:IsA("Model") and item.PrimaryPart or item
+            if primaryPart and primaryPart:IsA("BasePart") then
+                local distance = (primaryPart.Position - hrp.Position).Magnitude
+                if distance < minDistance then
+                    closestItem = primaryPart
+                    minDistance = distance
+                end
+            end
+        end
+    end
+
+    if closestItem then
+        local offset = Vector3.new(0, 3, 0)
+        hrp.CFrame = CFrame.new(closestItem.Position + offset, closestItem.Position)
+        OrionLib:MakeNotification({
+            Name = "传送成功",
+            Content = "已传送到" .. displayName,
+            Time = 3
+        })
+    else
+        OrionLib:MakeNotification({
+            Name = "传送失败",
+            Content = "未找到" .. displayName,
+            Time = 3
+        })
+    end
+end
+
+-- 传送按钮
+Day99Tab:AddButton({
+    Name = "传送到胡萝卜",
+    Callback = function()
+        teleportToItem("Carrot", "胡萝卜")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到煤",
+    Callback = function()
+        teleportToItem("Coal", "煤")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到物品箱",
+    Callback = function()
+        teleportToItem("Item Chest", "物品箱")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到燃料罐",
+    Callback = function()
+        teleportToItem("Fuel Canister", "燃料罐")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到兔子脚",
+    Callback = function()
+        teleportToItem("Bunny Foot", "兔子脚")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到熟肉块",
+    Callback = function()
+        teleportToItem("Cooked Morsel", "熟肉块")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到轮胎",
+    Callback = function()
+        teleportToItem("Tyre", "轮胎")
+    end
+})
+
+Day99Tab:AddButton({
+    Name = "传送到金属板",
+    Callback = function()
+        teleportToItem("Sheet Metal", "金属板")
+    end
+})
+
+-- 透视设置
+Day99Tab:AddSection("透视设置")
+
+-- 填充颜色选择器
+Day99Tab:AddColorpicker({
+    Name = "填充颜色",
+    Default = fillColor,
+    Callback = function(color)
+        fillColor = color
+        for _, item in pairs(workspace:GetDescendants()) do
+            if item:FindFirstChild("ESP_Highlight") then
+                item.ESP_Highlight.FillColor = color
+            end
+        end
+    end
+})
+
+-- 轮廓颜色选择器
+Day99Tab:AddColorpicker({
+    Name = "轮廓颜色",
+    Default = outlineColor,
+    Callback = function(color)
+        outlineColor = color
+        for _, item in pairs(workspace:GetDescendants()) do
+            if item:FindFirstChild("ESP_Highlight") then
+                item.ESP_Highlight.OutlineColor = color
+            end
+        end
+    end
+})
+
+-- 透明度滑块
+Day99Tab:AddSlider({
+    Name = "透明度",
+    Min = 0,
+    Max = 1,
+    Default = 0.4,
+    Callback = function(value)
+        transparency = value
+        for _, item in pairs(workspace:GetDescendants()) do
+            if item:FindFirstChild("ESP_Highlight") then
+                item.ESP_Highlight.FillTransparency = value
+            end
+        end
+    end
+})
+
+-- 关闭所有透视
+Day99Tab:AddButton({
+    Name = "关闭所有透视",
+    Callback = function()
+        for _, item in pairs(workspace:GetDescendants()) do
+            if item:FindFirstChild("ESP_Highlight") then
+                item.ESP_Highlight:Destroy()
+            end
+        end
+        
+        -- 断开所有连接
+        local connections = {
+            "_G.BunnyFootESPConnection", "_G.CarrotESPConnection", "_G.FanESPConnection",
+            "_G.CoalESPConnection", "_G.ChestESPConnection", "_G.FuelESPConnection"
+        }
+        
+        for _, connName in pairs(connections) do
+            if _G[connName] then
+                _G[connName]:Disconnect()
+                _G[connName] = nil
+            end
+        end
+
+        OrionLib:MakeNotification({
+            Name = "透视已关闭",
+            Content = "所有高亮效果已清除",
+            Time = 3
+        })
+    end
+})
+
+-- 玩家透视
+Day99Tab:AddToggle({
+    Name = "透视玩家",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.PlayerESP = true
+            local localPlayer = game:GetService("Players").LocalPlayer
+            local localColor = Color3.fromRGB(0, 255, 0)
+            local otherColor = Color3.fromRGB(255, 0, 0)
+
+            local function highlightPlayer(player)
+                if player.Character then
+                    if player.Character:FindFirstChild("PlayerESP_Highlight") then
+                        player.Character.PlayerESP_Highlight:Destroy()
+                    end
+
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "PlayerESP_Highlight"
+                    highlight.Adornee = player.Character
+                    highlight.FillColor = (player == localPlayer) and localColor or otherColor
+                    highlight.OutlineColor = Color3.new(1, 1, 1)
+                    highlight.FillTransparency = 0.5
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = player.Character
+                end
+            end
+
+            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                highlightPlayer(player)
+            end
+
+            _G.PlayerAddedConnection = game:GetService("Players").PlayerAdded:Connect(highlightPlayer)
+        else
+            _G.PlayerESP = false
+
+            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                if player.Character and player.Character:FindFirstChild("PlayerESP_Highlight") then
+                    player.Character.PlayerESP_Highlight:Destroy()
+                end
+            end
+
+            if _G.PlayerAddedConnection then
+                _G.PlayerAddedConnection:Disconnect()
+            end
+        end
+    end
+})
+
+-- 娱乐功能
+Day99Tab:AddSection("娱乐功能")
+
+Day99Tab:AddButton({
+    Name = "删除地图",
+    Callback = function()
+        local maps = workspace:FindFirstChild("Map")
+        if maps then
+            maps:Destroy()
+            OrionLib:MakeNotification({
+                Name = "操作成功",
+                Content = "已删除Map对象",
+                Time = 3
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "操作失败",
+                Content = "未找到Map对象",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- ================================
+-- 原有功能标签页
+-- ================================
+
+local MainTab = Window:MakeTab({
+    Title = "主要功能",
+    Icon = "rbxassetid://4483345998" 
+})
+
+local GBTab = Window:MakeTab({
+    Title = "GB功能",
+    Icon = "rbxassetid://4483345998"
+})
+
+local NinjaTab = Window:MakeTab({
+    Title = "忍者传奇",
+    Icon = "rbxassetid://4483345998"
+})
+
+local SettingsTab = Window:MakeTab({
+    Title = "设置",
+    Icon = "settings"
+})
+
+local HelpTab = Window:MakeTab({
+    Title = "帮助",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- ================================
+-- 忍者传奇功能
+-- ================================
+local autoswing = false
+local autosell = false
+local autobuyranks = false
+local autobuybelts = false
+local autobuyskills = false
+local autobuy = false
+
+-- 忍者传奇功能实现
+spawn(function()
+    while true do
+        if autoswing then
+            for _,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v:FindFirstChild("ninjitsuGain") then
+                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+                    break
+                end
+            end
+            local A_1 = "swingKatana"
+            local Event = game:GetService("Players").LocalPlayer.ninjaEvent:FireServer(A_1)
+        end
+        wait()
+    end
+end)
+
+spawn(function()
+    while true do
+        if autosell then
+            game:GetService("Workspace").sellAreaCircles["sellAreaCircle16"].circleInner.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            wait(0.1)
+            game:GetService("Workspace").sellAreaCircles["sellAreaCircle16"].circleInner.CFrame = CFrame.new(0,0,0)
+            wait(0.1)
+        else
+            wait(1)
+        end
+    end
+end)
+
+NinjaTab:AddSection("自动功能")
+
+NinjaTab:AddToggle({
+    Name = "自动挥舞",
+    Default = false,
+    Callback = function(value)
+        autoswing = value
+        OrionLib:MakeNotification({
+            Name = "自动挥舞 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动挥舞武器" or "自动挥舞已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动售卖",
+    Default = false,
+    Callback = function(value)
+        autosell = value
+        OrionLib:MakeNotification({
+            Name = "自动售卖 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动售卖物品" or "自动售卖已停止",
+            Time = 3
+        })
+    end
+})
+
+-- ================================
+-- GB功能
+-- ================================
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- 玩家透视功能
+local espEnabled = false
+local playerHighlights = {}
+
+local function getTeamColor(player)
+    if player.Team then
+        return player.Team.TeamColor.Color
+    else
+        return Color3.fromRGB(255, 255, 255)
+    end
+end
+
+local function createPlayerESP(player)
+    if not player.Character then return end
+    if playerHighlights[player] then
+        playerHighlights[player]:Destroy()
+        playerHighlights[player] = nil
+    end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = player.Name .. "ESP"
+    highlight.FillColor = getTeamColor(player)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Parent = player.Character
+    
+    playerHighlights[player] = highlight
+end
+
+local function removePlayerESP(player)
+    if playerHighlights[player] then
+        playerHighlights[player]:Destroy()
+        playerHighlights[player] = nil
+    end
+end
+
+local function updateAllPlayerESP()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if espEnabled then
+            createPlayerESP(player)
+        else
+            removePlayerESP(player)
+        end
+    end
+end
+
+GBTab:AddSection("透视功能")
+
+GBTab:AddToggle({
+    Name = "玩家透视",
+    Default = false,
+    Callback = function(value)
+        espEnabled = value
+        updateAllPlayerESP()
+        OrionLib:MakeNotification({
+            Name = "玩家透视 " .. (value and "已启用" or "已禁用"),
+            Content = value and "所有玩家已高亮显示" or "玩家高亮已关闭",
+            Time = 3
+        })
+    end
+})
+
+-- ================================
+-- 主要功能
+-- ================================
+local NoclipEnabled = false
+local NoclipConnection = nil
+
+local function NoclipLoop()
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+    end
+    
+    NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+        if NoclipEnabled and game.Players.LocalPlayer.Character then
+            for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide then
+                    child.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+MainTab:AddSection("移动功能")
+
+MainTab:AddToggle({
+    Name = "穿墙模式",
+    Default = false,
+    Callback = function(value)
+        NoclipEnabled = value
+        
+        if value then
+            NoclipLoop()
+            OrionLib:MakeNotification({
+                Name = "穿墙模式已启用",
+                Content = "可以穿过墙壁和物体",
+                Time = 3
+            })
+        else
+            if NoclipConnection then
+                NoclipConnection:Disconnect()
+                NoclipConnection = nil
+            end
+            OrionLib:MakeNotification({
+                Name = "穿墙模式已禁用",
+                Content = "碰撞检测恢复正常",
+                Time = 3
+            })
+        end
+    end
+})
+
+local InfiniteJumpEnabled = false
+local JumpConnection = nil
+
+MainTab:AddToggle({
+    Name = "无限跳跃",
+    Default = false,
+    Callback = function(value)
+        InfiniteJumpEnabled = value
+        
+        if value then
+            if JumpConnection then
+                JumpConnection:Disconnect()
+            end
+            
+            JumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                if InfiniteJumpEnabled and game.Players.LocalPlayer.Character then
+                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState("Jumping")
+                    end
+                end
+            end)
+            
+            OrionLib:MakeNotification({
+                Name = "无限跳跃已启用",
+                Content = "可以无限跳跃",
+                Time = 3
+            })
+        else
+            if JumpConnection then
+                JumpConnection:Disconnect()
+                JumpConnection = nil
+            end
+            
+            OrionLib:MakeNotification({
+                Name = "无限跳跃已禁用",
+                Content = "跳跃功能恢复正常",
+                Time = 3
+            })
+        end
+    end
+})
+
+-- ================================
+-- 设置和帮助
+-- ================================
+SettingsTab:AddSection("界面设置")
+
+SettingsTab:AddSlider({
+    Name = "UI透明度",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        OrionLib:MakeNotification({
+            Name = "透明度已设置",
+            Content = "UI透明度: " .. tostring(value),
+            Time = 2
+        })
+    end
+})
+
+HelpTab:AddSection("使用说明")
+
+HelpTab:AddParagraph("99天功能", "在'99天功能'标签页中，您可以找到物品透视和传送功能：\n• 物品透视：高亮显示游戏中的特定物品\n• 传送功能：快速传送到最近的物品位置\n• 透视设置：自定义高亮颜色和透明度")
+
+HelpTab:AddParagraph("注意事项", "请合理使用功能，遵守游戏规则。部分功能可能在游戏更新后失效。")
+
+-- 发送加载完成通知
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "飞天剑云脚本",
+    Text = "99天功能已加载完成！",
+    Icon = "rbxassetid://14250466898",
+    Duration = 5
+})
+
+OrionLib:MakeNotification({
+    Name = "脚本加载完成",
+    Content = "99天功能和其他功能已就绪！",
+    Time = 5
+})
+
+-- 初始化UI
+OrionLib:Init()
