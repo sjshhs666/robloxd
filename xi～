@@ -1,0 +1,1953 @@
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/9kn-1/LocalredzzUi/refs/heads/main/Redz.txt"))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "飞天剑云，此脚本完全免费",
+    SubTitle = "如若你被传送，那你请打开gb里面的飞雷神"
+})
+
+local MainTab = Window:MakeTab({
+    Title = "主要",
+    Icon = "rbxassetid://4483345998" 
+})
+
+local GBTab = Window:MakeTab({
+    Title = "gb",
+    Icon = "rbxassetid://4483345998"
+})
+
+local NinjaTab = Window:MakeTab({
+    Title = "忍者传奇",
+    Icon = "rbxassetid://4483345998"
+})
+
+local SpeedLegendsTab = Window:MakeTab({
+    Title = "极速传奇",
+    Icon = "rbxassetid://4483345998"
+})
+
+local SlapSimulatorTab = Window:MakeTab({
+    Title = "巴掌模拟器",
+    Icon = "rbxassetid://4483345998"
+})
+
+local FinalBattleTab = Window:MakeTab({
+    Title = "最终战场",
+    Icon = "rbxassetid://4483345998"
+})
+
+local SettingsTab = Window:MakeTab({
+    Title = "设置",
+    Icon = "settings"
+})
+
+local HelpTab = Window:MakeTab({
+    Title = "帮助",
+    Icon = "rbxassetid://4483345998"
+})
+
+game:GetService("StarterGui"):SetCore("SendNotification", { 
+    Title = "飞天剑云脚本",
+    Text = "加载完成",
+    Icon = "rbxassetid://14250466898",
+    Duration = 10
+})
+
+local SlapAura = false
+
+local function getGlove()
+    local player = game.Players.LocalPlayer
+    
+    for _, tool in pairs(player.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            return tool.Name
+        end
+    end
+    
+    if player.Character then
+        for _, tool in pairs(player.Character:GetChildren()) do
+            if tool:IsA("Tool") then
+                return tool.Name
+            end
+        end
+    end
+    
+    return "Default"
+end
+
+local function slapPlayer(targetHead)
+    local success = pcall(function()
+        -- 方法1: 使用 shared.gloveHits
+        if shared and shared.gloveHits then
+            local glove = getGlove()
+            if shared.gloveHits[glove] then
+                shared.gloveHits[glove]:FireServer(targetHead)
+                return true
+            end
+        end
+        
+        local events = {"b", "Slap", "Hit", "Attack", "Damage"}
+        
+        for _, eventName in pairs(events) do
+            local event = game:GetService("ReplicatedStorage"):FindFirstChild(eventName)
+            if event and event:IsA("RemoteEvent") then
+                event:FireServer(targetHead)
+                return true
+            end
+        end
+        
+        return false
+    end)
+    
+    return success
+end
+
+SlapSimulatorTab:AddSection("自动功能")
+
+SlapSimulatorTab:AddToggle({
+    Name = "巴掌光环",
+    Description = "自动攻击附近的玩家",
+    Default = false,
+    Callback = function(value)
+        SlapAura = value
+        if value then
+            OrionLib:MakeNotification({
+                Name = "巴掌光环已启用",
+                Content = "正在自动攻击附近的玩家",
+                Time = 3
+            })
+            
+            coroutine.wrap(function()
+                while SlapAura do
+                    task.wait(0.1)
+                    
+                    if not game.Players.LocalPlayer.Character then
+                        continue
+                    end
+                    
+                    local localCharacter = game.Players.LocalPlayer.Character
+                    local localRoot = localCharacter:FindFirstChild("HumanoidRootPart")
+                    
+                    if not localRoot then
+                        continue
+                    end
+                    
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        if not SlapAura then break end
+                        
+                        if player ~= game.Players.LocalPlayer and player.Character then
+                            local targetCharacter = player.Character
+                            
+                            if not targetCharacter:FindFirstChild("entered") then
+                                continue
+                            end
+                            
+                            local targetHead = targetCharacter:FindFirstChild("Head")
+                            local targetRoot = targetCharacter:FindFirstChild("HumanoidRootPart")
+                            
+                            if targetHead and targetRoot then
+                                if targetHead:FindFirstChild("UnoReverseCard") or targetCharacter:FindFirstChild("rock") then
+                                    continue
+                                end
+                                
+                                local distance = (localRoot.Position - targetRoot.Position).Magnitude
+                                if distance <= 25 then
+                                    slapPlayer(targetHead)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)()
+        else
+            OrionLib:MakeNotification({
+                Name = "巴掌光环已禁用",
+                Content = "自动攻击已停止",
+                Time = 3
+            })
+        end
+    end
+})
+
+SlapSimulatorTab:AddSection("调试功能")
+
+SlapSimulatorTab:AddButton({
+    Name = "测试手套检测",
+    Description = "测试当前手套检测功能",
+    Callback = function()
+        local glove = getGlove()
+        OrionLib:MakeNotification({
+            Name = "手套检测",
+            Content = "检测到手套: " .. glove,
+            Time = 5
+        })
+    end
+})
+
+SlapSimulatorTab:AddButton({
+    Name = "测试攻击功能",
+    Description = "测试攻击功能是否正常工作",
+    Callback = function()
+        local localCharacter = game.Players.LocalPlayer.Character
+        local localRoot = localCharacter:FindFirstChild("HumanoidRootPart")
+        
+        if localRoot then
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player.Character then
+                    local targetCharacter = player.Character
+                    local targetHead = targetCharacter:FindFirstChild("Head")
+                    local targetRoot = targetCharacter:FindFirstChild("HumanoidRootPart")
+                    
+                    if targetHead and targetRoot then
+                        local distance = (localRoot.Position - targetRoot.Position).Magnitude
+                        if distance <= 25 then
+                            local success = slapPlayer(targetHead)
+                            if success then
+                                OrionLib:MakeNotification({
+                                    Name = "测试成功",
+                                    Content = "成功攻击: " .. player.Name,
+                                    Time = 5
+                                })
+                            else
+                                OrionLib:MakeNotification({
+                                    Name = "测试失败",
+                                    Content = "无法攻击: " .. player.Name,
+                                    Time = 5
+                                })
+                            end
+                            return
+                        end
+                    end
+                end
+            end
+        end
+        
+        OrionLib:MakeNotification({
+            Name = "测试失败",
+            Content = "没有找到合适的测试目标",
+            Time = 5
+        })
+    end
+})
+
+local fakeBlockEnabled = false
+local loopRunning = false
+local noDashCooldown = false
+local noMeleeCooldown = false
+local noAbilityCooldown = false
+local noSlowdowns = false
+local disableHitStun = false
+local disableIntros = false
+local noStunOnMiss = false
+local noRagdoll = false
+local extendedUltimate = false
+local instantTransformation = false
+local pingSpam = false
+local onePunchKnockdown = false
+local onePunchLaunch = false
+local noWallComboCooldown = false
+local wallFollow = false
+local antiLag = false
+local invisibility = false
+local killAura = false
+local wallComboKill = false
+local multiUseCutscenes = false
+local speedHack = false
+local speedValue = 100
+local dashSpeedValue = 100
+local jumpHeightValue = 100
+local meleeSpeedValue = 100
+
+FinalBattleTab:AddSection("基础功能")
+
+FinalBattleTab:AddButton({
+    Name = "篡改",
+    Description = "玩的时候第一先开启这个功能，一定要",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/dream77239/ubg-script/refs/heads/main/%E6%8B%A6%E6%88%AA.txt"))()
+        OrionLib:MakeNotification({
+            Name = "篡改已启用",
+            Content = "篡改功能已加载",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "假防(关闭功能后按一次防御即可取消假防)",
+    Description = "自动保持防御状态",
+    Default = false,
+    Callback = function(state)
+        fakeBlockEnabled = state
+
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local BlockRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat"):WaitForChild("Block")
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        local function enableBlock()
+            pcall(function()
+                BlockRemote:FireServer(true)
+            end)
+        end
+
+        if fakeBlockEnabled then
+            enableBlock()
+        end
+
+        if not loopRunning then
+            loopRunning = true
+            task.spawn(function()
+                while true do
+                    task.wait(0.01)
+                    if fakeBlockEnabled then
+                        local success, isBlocking = pcall(function()
+                            return character:GetAttribute("IsBlocking")
+                        end)
+                        if success and not isBlocking then
+                            enableBlock()
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+FinalBattleTab:AddSection("冷却时间")
+
+FinalBattleTab:AddToggle({
+    Name = "侧闪无冷却",
+    Description = "移除侧闪冷却时间",
+    Default = false,
+    Callback = function(state)
+        noDashCooldown = state
+        local dashCooldown = game:GetService("ReplicatedStorage").Settings.Cooldowns.Dash
+        if state then
+            dashCooldown.Value = 1
+        else
+            dashCooldown.Value = 1 -- 根据实际游戏调整
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "近战无冷却",
+    Description = "移除近战攻击冷却时间",
+    Default = false,
+    Callback = function(state)
+        noMeleeCooldown = state
+        local meleeCooldown = game:GetService("ReplicatedStorage").Settings.Cooldowns.Melee
+        if state then
+            meleeCooldown.Value = 1
+        else
+            meleeCooldown.Value = 1 -- 根据实际游戏调整
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "技能无冷却(仅宿傩角色)",
+    Description = "移除技能冷却时间",
+    Default = false,
+    Callback = function(state)
+        noAbilityCooldown = state
+        local rs = game:GetService("ReplicatedStorage")
+        local settings = rs.Settings
+        settings.Cooldowns.Ability.Value = state and 1 or 1 -- 根据实际游戏调整
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "墙打无冷却",
+    Description = "移除墙打冷却时间",
+    Default = false,
+    Callback = function(state)
+        noWallComboCooldown = state
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local wallCombo = ReplicatedStorage.Settings.Cooldowns.WallCombo
+        
+        if state then
+            wallCombo.Value = 0
+        else
+            wallCombo.Value = 100
+        end
+    end
+})
+
+FinalBattleTab:AddSection("战斗效果")
+
+FinalBattleTab:AddToggle({
+    Name = "无减速效果",
+    Description = "免疫所有减速效果",
+    Default = false,
+    Callback = function(state)
+        noSlowdowns = state
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local noSlowdownsToggle = ReplicatedStorage.Settings.Toggles.NoSlowdowns
+        noSlowdownsToggle.Value = state
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "取消被攻击硬直",
+    Description = "免疫被攻击时的硬直效果",
+    Default = false,
+    Callback = function(state)
+        disableHitStun = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Toggles.DisableHitStun.Value = state
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "跳过角色开场动作",
+    Description = "跳过角色开场动画",
+    Default = false,
+    Callback = function(state)
+        disableIntros = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Toggles.DisableIntros.Value = state
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "普攻无僵直",
+    Description = "普通攻击不会产生僵直",
+    Default = false,
+    Callback = function(state)
+        noStunOnMiss = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Toggles.NoStunOnMiss.Value = state
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "被别人击倒不会变成布娃娃",
+    Description = "免疫击倒布娃娃效果",
+    Default = false,
+    Callback = function(state)
+        noRagdoll = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Multipliers.RagdollTimer.Value = state and 0.5 or 1 -- 根据实际游戏调整
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "延长大招时间",
+    Description = "大幅延长大招持续时间",
+    Default = false,
+    Callback = function(state)
+        extendedUltimate = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Multipliers.UltimateTimer.Value = state and 100000 or 1 -- 根据实际游戏调整
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "秒开大",
+    Description = "瞬间开启大招",
+    Default = false,
+    Callback = function(state)
+        instantTransformation = state
+        local settings = game:GetService("ReplicatedStorage").Settings
+        settings.Toggles.InstantTransformation.Value = state
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "艾斯帕大招技能多次使用(全角色通用)",
+    Description = "允许大招多次使用",
+    Default = false,
+    Callback = function(state)
+        multiUseCutscenes = state
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local multiUseCutscenesToggle = ReplicatedStorage.Settings.Toggles.MultiUseCutscenes
+        multiUseCutscenesToggle.Value = state
+    end
+})
+
+FinalBattleTab:AddSection("攻击增强")
+
+FinalBattleTab:AddToggle({
+    Name = "一拳倒地",
+    Description = "一拳击倒敌人",
+    Default = false,
+    Callback = function(state)
+        onePunchKnockdown = state
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local MeleeDamage = ReplicatedStorage:WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("MeleeDamage")
+
+        if state then
+            MeleeDamage.Value = 1000000
+        else
+            MeleeDamage.Value = 100
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "一拳击飞",
+    Description = "一拳击飞敌人",
+    Default = false,
+    Callback = function(state)
+        onePunchLaunch = state
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local RunService = game:GetService("RunService")
+
+        local LocalPlayer = Players.LocalPlayer
+        local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+        local RagdollPower = ReplicatedStorage:WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("RagdollPower")
+
+        local maxTeleportDistance = 50
+        local lastPosition = HumanoidRootPart.Position
+        local connection
+
+        if state then
+            RagdollPower.Value = 10000
+
+            connection = RunService.RenderStepped:Connect(function()
+                if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+                    lastPosition = HumanoidRootPart.Position
+                end
+
+                local currentPos = HumanoidRootPart.Position
+                local distance = (currentPos - lastPosition).Magnitude
+
+                if distance > maxTeleportDistance then
+                    HumanoidRootPart.CFrame = CFrame.new(lastPosition)
+                else
+                    lastPosition = currentPos
+                end
+            end)
+        else
+            RagdollPower.Value = 100
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end
+})
+
+FinalBattleTab:AddSection("墙打功能")
+
+FinalBattleTab:AddToggle({
+    Name = "随处墙打",
+    Description = "在任何位置使用墙打",
+    Default = false,
+    Callback = function(state)
+        wallFollow = state
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local player = Players.LocalPlayer
+
+        local wall = workspace:FindFirstChild("Wall") or Instance.new("Part")
+        wall.Name = "Wall"
+        wall.Size = Vector3.new(12,6,2)
+        wall.Transparency = 0.6
+        wall.Material = Enum.Material.SmoothPlastic
+        wall.Anchored = true
+        wall.CanCollide = true
+        wall.Parent = workspace
+
+        local followConnection = nil
+        
+        if state then
+            if not followConnection then
+                followConnection = RunService.RenderStepped:Connect(function()
+                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        wall.CFrame = hrp.CFrame * CFrame.new(0,0,-8)
+                    end
+                end)
+            end
+        else
+            if followConnection then
+                followConnection:Disconnect()
+                followConnection = nil
+            end
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "墙打秒杀",
+    Description = "墙打技能秒杀敌人",
+    Default = false,
+    Callback = function(state)
+        wallComboKill = state
+        OrionLib:MakeNotification({
+            Name = "墙打秒杀",
+            Content = state and "已启用" or "已禁用",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddButton({
+    Name = "删除墙打特效",
+    Description = "点了该功能就无法恢复墙打特效",
+    Callback = function()
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        OrionLib:MakeNotification({
+            Name = "特效已删除",
+            Content = "墙打特效已删除",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddButton({
+    Name = "删除击杀表情特效",
+    Description = "点击删除击杀表情的部分特效,不可恢复",
+    Callback = function()
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        OrionLib:MakeNotification({
+            Name = "特效已删除",
+            Content = "击杀表情特效已删除",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddSection("其他功能")
+
+FinalBattleTab:AddToggle({
+    Name = "ping乱码",
+    Description = "扰乱ping值显示",
+    Default = false,
+    Callback = function(state)
+        pingSpam = state
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local Ping = player:WaitForChild("Info"):WaitForChild("Ping")
+
+        local loop
+        
+        if state then
+            loop = task.spawn(function()
+                while state do
+                    for i = 0, 999, 25 do
+                        if not state then break end
+                        Ping.Value = i
+                        task.wait(0.03)
+                    end
+                    for i = 999, 0, -25 do
+                        if not state then break end
+                        Ping.Value = i
+                        task.wait(0.03)
+                    end
+                end
+            end)
+        else
+            if loop then
+                task.cancel(loop)
+                loop = nil
+            end
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "防卡",
+    Description = "减少游戏卡顿",
+    Default = false,
+    Callback = function(state)
+        antiLag = state
+        if state then
+            -- 简化版防卡功能
+            game.Lighting.GlobalShadows = false
+            game.Lighting.FogEnd = 9e9
+        else
+            game.Lighting.GlobalShadows = true
+            game.Lighting.FogEnd = 1000
+        end
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "隐身",
+    Description = "角色隐身",
+    Default = false,
+    Callback = function(state)
+        invisibility = state
+        OrionLib:MakeNotification({
+            Name = "隐身",
+            Content = state and "已启用" or "已禁用",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddToggle({
+    Name = "杀戮光环",
+    Description = "自动攻击周围敌人",
+    Default = false,
+    Callback = function(state)
+        killAura = state
+        OrionLib:MakeNotification({
+            Name = "杀戮光环",
+            Content = state and "已启用" or "已禁用",
+            Time = 3
+        })
+    end
+})
+
+FinalBattleTab:AddSection("移动设置")
+
+FinalBattleTab:AddToggle({
+    Name = "速度",
+    Description = "增加移动速度",
+    Default = false,
+    Callback = function(state)
+        speedHack = state
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local LocalPlayer = Players.LocalPlayer
+
+        local tpwalking = state
+        local tpwalkSpeed = speedValue
+
+        if state then
+            spawn(function()
+                while tpwalking do
+                    local chr = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    local hrp = chr:FindFirstChild("HumanoidRootPart")
+                    local hum = chr:FindFirstChildWhichIsA("Humanoid")
+                    local delta = RunService.Heartbeat:Wait()
+                    if hrp and hum and hum.MoveDirection.Magnitude > 0 then
+                        hrp.CFrame = hrp.CFrame + (hum.MoveDirection * tpwalkSpeed * delta)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+FinalBattleTab:AddSlider({
+    Name = "速度调节",
+    Description = "调整移动速度",
+    MinValue = 0,
+    MaxValue = 250,
+    Default = 100,
+    Callback = function(value)
+        speedValue = value
+    end
+})
+
+FinalBattleTab:AddSlider({
+    Name = "冲刺加速(默认值100)",
+    Description = "调整冲刺速度",
+    MinValue = 0,
+    MaxValue = 1000,
+    Default = 100,
+    Callback = function(value)
+        dashSpeedValue = value
+        game:GetService("ReplicatedStorage").Settings.Multipliers.DashSpeed.Value = value
+    end
+})
+
+FinalBattleTab:AddSlider({
+    Name = "跳跃增强(默认值100)",
+    Description = "调整跳跃高度",
+    MinValue = 0,
+    MaxValue = 1000,
+    Default = 100,
+    Callback = function(value)
+        jumpHeightValue = value
+        game:GetService("ReplicatedStorage").Settings.Multipliers.JumpHeight.Value = value
+    end
+})
+
+FinalBattleTab:AddSlider({
+    Name = "攻击加速(默认值100)",
+    Description = "调整攻击速度",
+    MinValue = 0,
+    MaxValue = 1000,
+    Default = 100,
+    Callback = function(value)
+        meleeSpeedValue = value
+        game:GetService("ReplicatedStorage").Settings.Multipliers.MeleeSpeed.Value = value
+    end
+})
+
+local AutoRebirth = false
+local YellowOrbCity = false
+local RedOrbCity = false
+local GemCity = false
+local YellowOrbSnow = false
+local RedOrbSnow = false
+local GemSnow = false
+local HoopsV1 = false
+local HoopsV2 = false
+
+-- 极速传奇自动功能
+spawn(function()
+    while wait() do
+        if AutoRebirth then
+            pcall(function()
+                game:GetService("ReplicatedStorage").rEvents.rebirthEvent:FireServer("rebirthRequest")
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if YellowOrbCity then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Yellow Orb", "City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if RedOrbCity then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Red Orb", "City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if GemCity then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Gem", "City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if YellowOrbSnow then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Yellow Orb", "Snow City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if RedOrbSnow then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Red Orb", "Snow City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if GemSnow then
+            pcall(function()
+                for i = 1, 5 do
+                    game:GetService('ReplicatedStorage').rEvents.orbEvent:FireServer("collectOrb", "Gem", "Snow City")
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if HoopsV1 then
+            pcall(function()
+                for i,v in pairs(game:GetService("Workspace").Hoops:GetChildren()) do
+                    firetouchinterest(v, game:GetService('Players').LocalPlayer.Character.HumanoidRootPart, 0)
+                    wait()
+                    firetouchinterest(v, game:GetService('Players').LocalPlayer.Character.HumanoidRootPart, 1)
+                end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait() do
+        if HoopsV2 then
+            pcall(function()
+                local children = workspace.Hoops:GetChildren()
+                for i, child in ipairs(children) do
+                    if child.Name == "Hoop" then
+                        child.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                    end    
+                end
+            end)
+        end
+    end
+end)
+
+-- 极速传奇标签页
+SpeedLegendsTab:AddSection("自动功能")
+
+SpeedLegendsTab:AddToggle({
+    Name = "自动重生",
+    Description = "自动进行重生",
+    Default = false,
+    Callback = function(value)
+        AutoRebirth = value
+        OrionLib:MakeNotification({
+            Name = "自动重生 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动重生" or "自动重生已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddSection("城市收集")
+
+SpeedLegendsTab:AddToggle({
+    Name = "黄色球 (城市)",
+    Description = "自动收集城市黄色球",
+    Default = false,
+    Callback = function(value)
+        YellowOrbCity = value
+        OrionLib:MakeNotification({
+            Name = "黄色球收集 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集城市黄色球" or "黄色球收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddToggle({
+    Name = "红色球 (城市)",
+    Description = "自动收集城市红色球",
+    Default = false,
+    Callback = function(value)
+        RedOrbCity = value
+        OrionLib:MakeNotification({
+            Name = "红色球收集 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集城市红色球" or "红色球收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddToggle({
+    Name = "宝石 (城市)",
+    Description = "自动收集城市宝石",
+    Default = false,
+    Callback = function(value)
+        GemCity = value
+        OrionLib:MakeNotification({
+            Name = "宝石收集 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集城市宝石" or "宝石收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddSection("雪城收集")
+
+SpeedLegendsTab:AddToggle({
+    Name = "黄色球 (雪城)",
+    Description = "自动收集雪城黄色球",
+    Default = false,
+    Callback = function(value)
+        YellowOrbSnow = value
+        OrionLib:MakeNotification({
+            Name = "雪城黄色球 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集雪城黄色球" or "雪城黄色球收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddToggle({
+    Name = "红色球 (雪城)",
+    Description = "自动收集雪城红色球",
+    Default = false,
+    Callback = function(value)
+        RedOrbSnow = value
+        OrionLib:MakeNotification({
+            Name = "雪城红色球 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集雪城红色球" or "雪城红色球收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddToggle({
+    Name = "宝石 (雪城)",
+    Description = "自动收集雪城宝石",
+    Default = false,
+    Callback = function(value)
+        GemSnow = value
+        OrionLib:MakeNotification({
+            Name = "雪城宝石 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在收集雪城宝石" or "雪城宝石收集已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddSection("圈功能")
+
+SpeedLegendsTab:AddToggle({
+    Name = "圈V1",
+    Description = "自动通过所有圈",
+    Default = false,
+    Callback = function(value)
+        HoopsV1 = value
+        OrionLib:MakeNotification({
+            Name = "圈V1 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动通过圈" or "圈V1已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddToggle({
+    Name = "圈V2",
+    Description = "将圈传送到玩家位置",
+    Default = false,
+    Callback = function(value)
+        HoopsV2 = value
+        OrionLib:MakeNotification({
+            Name = "圈V2 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在传送圈到玩家位置" or "圈V2已停止",
+            Time = 3
+        })
+    end
+})
+
+SpeedLegendsTab:AddSection("传送功能")
+
+SpeedLegendsTab:AddButton({
+    Name = "传送到城市",
+    Description = "快速传送到城市",
+    Callback = function()
+        pcall(function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9682.98828, 74.8522873, 3099.03394, 0.087131381, 0, 0.996196866, 0, 1, 0, -0.996196866, 0, 0.087131381)
+            OrionLib:MakeNotification({
+                Name = "传送成功",
+                Content = "已传送到城市",
+                Time = 3
+            })
+        end)
+    end
+})
+
+SpeedLegendsTab:AddButton({
+    Name = "传送到雪城",
+    Description = "快速传送到雪城",
+    Callback = function()
+        pcall(function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9676.13867, 74.8522873, 3782.69385, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+            OrionLib:MakeNotification({
+                Name = "传送成功",
+                Content = "已传送到雪城",
+                Time = 3
+            })
+        end)
+    end
+})
+
+SpeedLegendsTab:AddButton({
+    Name = "传送到熔岩城",
+    Description = "快速传送到熔岩城",
+    Callback = function()
+        pcall(function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-11054.9688, 232.791656, 4898.62842, -0.0872479677, 0.000158954252, -0.996186614, -0.00054083002, 0.999999821, 0.00020692969, 0.996186495, 0.000556821818, -0.0872478485)
+            OrionLib:MakeNotification({
+                Name = "传送成功",
+                Content = "已传送到熔岩城",
+                Time = 3
+            })
+        end)
+    end
+})
+
+SpeedLegendsTab:AddButton({
+    Name = "传送到传奇公路",
+    Description = "快速传送到传奇公路",
+    Callback = function()
+        pcall(function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-13098.8711, 232.791656, 5907.62793, -0.0872479677, 0.000158954252, -0.996186614, -0.00054083002, 0.999999821, 0.00020692969, 0.996186495, 0.000556821818, -0.0872478485)
+            OrionLib:MakeNotification({
+                Name = "传送成功",
+                Content = "已传送到传奇公路",
+                Time = 3
+            })
+        end)
+    end
+})
+
+local autoswing = false
+local autosell = false
+local autobuyranks = false
+local autobuybelts = false
+local autobuyskills = false
+local autobuy = false
+
+spawn(function()
+    while true do
+        if autoswing then
+            pcall(function()
+                for _,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                    if v:FindFirstChild("ninjitsuGain") then
+                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+                        break
+                    end
+                end
+                local A_1 = "swingKatana"
+                local Event = game:GetService("Players").LocalPlayer.ninjaEvent:FireServer(A_1)
+            end)
+        end
+        wait()
+    end
+end)
+
+spawn(function()
+    while true do
+        if autosell then
+            pcall(function()
+                game:GetService("Workspace").sellAreaCircles["sellAreaCircle16"].circleInner.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                wait(0.1)
+                game:GetService("Workspace").sellAreaCircles["sellAreaCircle16"].circleInner.CFrame = CFrame.new(0,0,0)
+                wait(0.1)
+            end)
+        else
+            wait(1)
+        end
+    end
+end)
+
+spawn(function()
+    while true do
+        if autobuyranks then
+            pcall(function()
+                local deku1 = "buyRank"
+                for i = 1, 5 do
+                    game:GetService("Players").LocalPlayer.ninjaEvent:FireServer(deku1, "Rank " .. i)
+                end
+            end)
+            wait(0.1)
+        else
+            wait(1)
+        end
+    end
+end)
+
+spawn(function()
+    while true do
+        if autobuybelts then
+            pcall(function()
+                local A_1 = "buyAllBelts"
+                local A_2 = "Inner Peace Island"
+                local Event = game:GetService("Players").LocalPlayer.ninjaEvent
+                Event:FireServer(A_1, A_2)
+            end)
+            wait(0.5)
+        else
+            wait(1)
+        end
+    end
+end)
+
+spawn(function()
+    while true do
+        if autobuyskills then
+            pcall(function()
+                local A_1 = "buyAllSkills"
+                local A_2 = "Inner Peace Island"
+                local Event = game:GetService("Players").LocalPlayer.ninjaEvent
+                Event:FireServer(A_1, A_2)
+            end)
+            wait(0.5)
+        else
+            wait(1)
+        end
+    end
+end)
+
+spawn(function()
+    while true do
+        if autobuy then
+            pcall(function()
+                local A_1 = "buyAllSwords"
+                local A_2 = "Inner Peace Island"
+                local Event = game:GetService("Players").LocalPlayer.ninjaEvent
+                Event:FireServer(A_1, A_2)
+            end)
+            wait(0.5)
+        else
+            wait(1)
+        end
+    end
+end)
+
+local function unlockAllIslands()
+    pcall(function()
+        for _,v in pairs(game:GetService("Workspace").islandUnlockParts:GetChildren()) do
+            firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"),v,0)
+            firetouchinterest(game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"),v,1)
+        end
+        OrionLib:MakeNotification({
+            Name = "解锁完成",
+            Content = "所有岛屿已解锁",
+            Time = 3
+        })
+    end)
+end
+
+local function unlockAllElements()
+    pcall(function()
+        local Elements = {}
+        for i,v in pairs(game:GetService("ReplicatedStorage").Elements:GetChildren()) do
+            table.insert(Elements,v.Name)
+        end
+        
+        for i,v in pairs(Elements) do
+            game.ReplicatedStorage.rEvents.elementMasteryEvent:FireServer(v)
+        end
+        OrionLib:MakeNotification({
+            Name = "解锁完成",
+            Content = "所有元素已解锁",
+            Time = 3
+        })
+    end)
+end
+
+NinjaTab:AddSection("自动功能")
+
+NinjaTab:AddToggle({
+    Name = "自动挥舞",
+    Description = "自动挥舞武器",
+    Default = false,
+    Callback = function(value)
+        autoswing = value
+        OrionLib:MakeNotification({
+            Name = "自动挥舞 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动挥舞武器" or "自动挥舞已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动售卖",
+    Description = "自动售卖物品",
+    Default = false,
+    Callback = function(value)
+        autosell = value
+        OrionLib:MakeNotification({
+            Name = "自动售卖 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动售卖物品" or "自动售卖已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动购买排名",
+    Description = "自动购买所有排名",
+    Default = false,
+    Callback = function(value)
+        autobuyranks = value
+        OrionLib:MakeNotification({
+            Name = "自动购买排名 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动购买排名" or "自动购买排名已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动购买腰带",
+    Description = "自动购买所有腰带",
+    Default = false,
+    Callback = function(value)
+        autobuybelts = value
+        OrionLib:MakeNotification({
+            Name = "自动购买腰带 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动购买腰带" or "自动购买腰带已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动购买技能",
+    Description = "自动购买所有技能",
+    Default = false,
+    Callback = function(value)
+        autobuyskills = value
+        OrionLib:MakeNotification({
+            Name = "自动购买技能 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动购买技能" or "自动购买技能已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddToggle({
+    Name = "自动购买剑",
+    Description = "自动购买所有剑",
+    Default = false,
+    Callback = function(value)
+        autobuy = value
+        OrionLib:MakeNotification({
+            Name = "自动购买剑 " .. (value and "已启用" or "已禁用"),
+            Content = value and "正在自动购买剑" or "自动购买剑已停止",
+            Time = 3
+        })
+    end
+})
+
+NinjaTab:AddSection("一键解锁")
+
+NinjaTab:AddButton({
+    Name = "解锁所有岛屿",
+    Description = "一键解锁所有岛屿",
+    Callback = unlockAllIslands
+})
+
+NinjaTab:AddButton({
+    Name = "解锁所有元素",
+    Description = "一键解锁所有元素",
+    Callback = unlockAllElements
+})
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local debugMode = false
+local keepBackpackEnabled = false
+local backpackConnection = nil
+local characterAddedConnection = nil
+local espEnabled = false
+local playerHighlights = {}
+local isActive = false
+local currentTarget = nil
+local floatOffset = 0
+local lastSwitch = 0
+local heartbeatConnection = nil
+
+local function toggleKeepBackpack()
+    keepBackpackEnabled = not keepBackpackEnabled
+    
+    if keepBackpackEnabled then
+        if player.PlayerGui:FindFirstChild("BackpackGui") then
+            player.PlayerGui.BackpackGui.Enabled = true
+            backpackConnection = player.PlayerGui.BackpackGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+                player.PlayerGui.BackpackGui.Enabled = true
+            end)
+            characterAddedConnection = player.CharacterAdded:Connect(function()
+                task.wait(1)
+                if player.PlayerGui:FindFirstChild("BackpackGui") then
+                    player.PlayerGui.BackpackGui.Enabled = true
+                end
+            end)
+            OrionLib:MakeNotification({
+                Name = "保持物品栏已启用",
+                Content = "物品栏将始终保持打开状态",
+                Time = 3
+            })
+        end
+    else
+        if backpackConnection then
+            backpackConnection:Disconnect()
+            backpackConnection = nil
+        end
+        if characterAddedConnection then
+            characterAddedConnection:Disconnect()
+            characterAddedConnection = nil
+        end
+        OrionLib:MakeNotification({
+            Name = "保持物品栏已禁用",
+            Content = "物品栏恢复正常状态",
+            Time = 3
+        })
+    end
+end
+
+local function unlockWeapons()
+    pcall(function()
+        local hiddenAchievements = player:FindFirstChild("HiddenAchievements")
+        
+        if hiddenAchievements then
+            local leRevenant = hiddenAchievements:FindFirstChild("LeRevenant")
+            if leRevenant and leRevenant:IsA("BoolValue") then
+                leRevenant.Value = true
+            end
+            
+            local untouchable = hiddenAchievements:FindFirstChild("Untouchable")
+            if untouchable and untouchable:IsA("BoolValue") then
+                untouchable.Value = true
+            end
+        end
+        OrionLib:MakeNotification({
+            Name = "武器已解锁",
+            Content = "隐藏武器已解锁",
+            Time = 3
+        })
+    end)
+end
+
+local function getTeamColor(player)
+    if player.Team then
+        return player.Team.TeamColor.Color
+    else
+        return Color3.fromRGB(255, 255, 255)
+    end
+end
+
+local function createPlayerESP(player)
+    if not player.Character then return end
+    if playerHighlights[player] then
+        playerHighlights[player]:Destroy()
+        playerHighlights[player] = nil
+    end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = player.Name .. "ESP"
+    highlight.FillColor = getTeamColor(player)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Parent = player.Character
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "PlayerNameTag"
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Adornee = player.Character:WaitForChild("Head") or player.Character:WaitForChild("HumanoidRootPart")
+    billboard.Parent = player.Character
+    
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Text = player.Name .. (player.Team and " ("..player.Team.Name..")" or "")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = getTeamColor(player)
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = 14
+    nameLabel.TextStrokeTransparency = 0.5
+    nameLabel.Parent = billboard
+    
+    playerHighlights[player] = highlight
+end
+
+local function removePlayerESP(player)
+    if playerHighlights[player] then
+        playerHighlights[player]:Destroy()
+        playerHighlights[player] = nil
+    end
+    
+    if player.Character then
+        local nameTag = player.Character:FindFirstChild("PlayerNameTag")
+        if nameTag then
+            nameTag:Destroy()
+        end
+    end
+end
+
+local function updateAllPlayerESP()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if espEnabled then
+            createPlayerESP(player)
+        else
+            removePlayerESP(player)
+        end
+    end
+end
+
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(character)
+        if espEnabled then
+            espEnabled = false
+            updateAllPlayerESP()
+        end
+        
+        if espEnabled then
+            createPlayerESP(player)
+        end
+    end)
+    
+    player.CharacterRemoving:Connect(function()
+        removePlayerESP(player)
+    end)
+    
+    local success, err = pcall(function()
+        player:GetPropertyChangedSignal("Team"):Connect(function()
+            if espEnabled and player.Character then
+                createPlayerESP(player)
+            end
+        end)
+    end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+local function toggleESP()
+    espEnabled = not espEnabled
+    updateAllPlayerESP()
+    OrionLib:MakeNotification({
+        Name = "玩家透视 " .. (espEnabled and "已启用" or "已禁用"),
+        Content = espEnabled and "所有玩家已高亮显示" or "玩家高亮已关闭",
+        Time = 3
+    })
+end
+
+local function teleportToLeipzig()
+    pcall(function()
+        local character = player.Character
+        if character then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local targetCFrame = CFrame.new(
+                    -588.658203, 10.9199705, -109.468513,
+                    0.258864343, 0, -0.965913713,
+                    0, 1, 0,
+                    0.965913713, 0, 0.258864343
+                )
+                humanoidRootPart.CFrame = targetCFrame
+                OrionLib:MakeNotification({
+                    Name = "传送成功",
+                    Content = "已传送到莱比锡",
+                    Time = 3
+                })
+            end
+        end
+    end)
+end
+
+local SAFE_DISTANCE = 3
+local FLOAT_HEIGHT = 3
+local FLOAT_SPEED = 15
+local COOLDOWN = 0.6
+
+local function getValidTargets()
+    local targets = {}
+    local me = game:GetService("Players").LocalPlayer
+    
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        if player ~= me and 
+           player.Character and
+           player.Character:FindFirstChild("HumanoidRootPart") and
+           (not me.Team or not player.Team or player.Team ~= me.Team) then
+            table.insert(targets, player)
+        end
+    end
+    
+    return targets
+end
+
+local function godTeleport()
+    local me = game:GetService("Players").LocalPlayer
+    if not me.Character then return end
+    local myRoot = me.Character:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return end
+    
+    local targets = getValidTargets()
+    if #targets == 0 then
+        return
+    end
+    
+    if tick() - lastSwitch >= COOLDOWN then
+        currentTarget = targets[math.random(1, #targets)]
+        lastSwitch = tick()
+        floatOffset = 0
+    end
+    
+    if currentTarget and currentTarget.Character then
+        local targetRoot = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+        if targetRoot then
+            floatOffset = math.sin(tick() * FLOAT_SPEED) * FLOAT_HEIGHT
+            
+            local backVector = targetRoot.CFrame.LookVector * -SAFE_DISTANCE
+            local floatVector = Vector3.new(0, floatOffset, 0)
+            myRoot.CFrame = CFrame.new(
+                targetRoot.Position + backVector + floatVector,
+                targetRoot.Position + floatVector
+            )
+        end
+    end
+end
+
+local function stopTeleport()
+    isActive = false
+    if heartbeatConnection then
+        heartbeatConnection:Disconnect()
+        heartbeatConnection = nil
+    end
+    currentTarget = nil
+end
+
+local function toggleGodTeleport()
+    isActive = not isActive
+    
+    if isActive then
+        currentTarget = nil
+        lastSwitch = 0
+        
+        heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if isActive then
+                godTeleport()
+            end
+        end)
+        OrionLib:MakeNotification({
+            Name = "无敌飞雷神已启用",
+            Content = "正在自动传送攻击敌人",
+            Time = 3
+        })
+    else
+        stopTeleport()
+        OrionLib:MakeNotification({
+            Name = "无敌飞雷神已禁用",
+            Content = "传送功能已关闭",
+            Time = 3
+        })
+    end
+end
+
+GBTab:AddSection("基础功能")
+
+GBTab:AddToggle({
+    Name = "保持物品栏",
+    Description = "物品栏始终保持打开状态",
+    Default = false,
+    Callback = toggleKeepBackpack
+})
+
+GBTab:AddButton({
+    Name = "解锁武器",
+    Description = "解锁隐藏武器",
+    Callback = unlockWeapons
+})
+
+GBTab:AddToggle({
+    Name = "玩家透视",
+    Description = "显示所有玩家位置和队伍",
+    Default = false,
+    Callback = toggleESP
+})
+
+GBTab:AddButton({
+    Name = "传送到莱比锡",
+    Description = "快速传送到莱比锡位置",
+    Callback = teleportToLeipzig
+})
+
+GBTab:AddSection("战斗功能")
+
+GBTab:AddToggle({
+    Name = "无敌飞雷神",
+    Description = "自动传送攻击敌人",
+    Default = false,
+    Callback = toggleGodTeleport
+})
+
+local NoclipEnabled = false
+local NoclipConnection = nil
+
+local function NoclipLoop()
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+    end
+    
+    NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+        if NoclipEnabled and game.Players.LocalPlayer.Character then
+            for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide then
+                    child.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+local InfiniteJumpEnabled = false
+local JumpConnection = nil
+
+MainTab:AddSection("移动功能")
+
+MainTab:AddToggle({
+    Name = "穿墙模式",
+    Description = "允许穿过墙壁和物体",
+    Default = false,
+    Callback = function(value)
+        NoclipEnabled = value
+        
+        if value then
+            NoclipLoop()
+            OrionLib:MakeNotification({
+                Name = "穿墙模式已启用",
+                Content = "可以穿过墙壁和物体",
+                Time = 3
+            })
+        else
+            if NoclipConnection then
+                NoclipConnection:Disconnect()
+                NoclipConnection = nil
+            end
+            OrionLib:MakeNotification({
+                Name = "穿墙模式已禁用",
+                Content = "碰撞检测恢复正常",
+                Time = 3
+            })
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "无限跳跃",
+    Description = "在空中也能无限跳跃",
+    Default = false,
+    Callback = function(value)
+        InfiniteJumpEnabled = value
+        
+        if value then
+            if JumpConnection then
+                JumpConnection:Disconnect()
+            end
+            
+            JumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                if InfiniteJumpEnabled and game.Players.LocalPlayer.Character then
+                    local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState("Jumping")
+                    end
+                end
+            end)
+            
+            OrionLib:MakeNotification({
+                Name = "无限跳跃已启用",
+                Content = "可以无限跳跃",
+                Time = 3
+            })
+        else
+            if JumpConnection then
+                JumpConnection:Disconnect()
+                JumpConnection = nil
+            end
+            
+            OrionLib:MakeNotification({
+                Name = "无限跳跃已禁用",
+                Content = "跳跃功能恢复正常",
+                Time = 3
+            })
+        end
+    end
+})
+
+local SpinEnabled = false
+local SpinConnection = nil
+local SpinSpeed = 5
+
+local function EnableSpin()
+    if SpinConnection then
+        SpinConnection:Disconnect()
+    end
+    
+    SpinConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if SpinEnabled and game.Players.LocalPlayer.Character then
+            local rootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, math.rad(SpinSpeed), 0)
+            end
+        end
+    end)
+end
+
+MainTab:AddToggle({
+    Name = "角色旋转",
+    Description = "让你的角色持续旋转",
+    Default = false,
+    Callback = function(value)
+        SpinEnabled = value
+        
+        if value then
+            EnableSpin()
+            OrionLib:MakeNotification({
+                Name = "角色旋转已启用",
+                Content = "角色开始旋转，速度: " .. tostring(SpinSpeed),
+                Time = 3
+            })
+        else
+            if SpinConnection then
+                SpinConnection:Disconnect()
+                SpinConnection = nil
+            end
+            OrionLib:MakeNotification({
+                Name = "角色旋转已禁用",
+                Content = "角色停止旋转",
+                Time = 3
+            })
+        end
+    end
+})
+
+MainTab:AddSlider({
+    Name = "旋转速度",
+    Description = "调整角色旋转的速度",
+    MinValue = 1,
+    MaxValue = 50,
+    Default = 5,
+    Callback = function(value)
+        SpinSpeed = value
+        if SpinEnabled then
+            EnableSpin()
+        end
+        OrionLib:MakeNotification({
+            Name = "旋转速度已设置",
+            Content = "当前旋转速度: " .. tostring(value),
+            Time = 2
+        })
+    end
+})
+
+local JumpHeightEnabled = false
+local JumpHeight = 50
+local OriginalJumpPower = 50
+
+local function ApplyJumpHeight()
+    if game.Players.LocalPlayer.Character then
+        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if JumpHeightEnabled then
+                humanoid.JumpPower = JumpHeight
+            else
+                humanoid.JumpPower = OriginalJumpPower
+            end
+        end
+    end
+end
+
+MainTab:AddToggle({
+    Name = "自定义跳跃高度",
+    Description = "启用自定义跳跃高度",
+    Default = false,
+    Callback = function(value)
+        JumpHeightEnabled = value
+        ApplyJumpHeight()
+        
+        OrionLib:MakeNotification({
+            Name = "自定义跳跃高度 " .. (value and "已启用" or "已禁用"),
+            Content = value and "跳跃高度: " .. tostring(JumpHeight) or "跳跃高度恢复正常",
+            Time = 3
+        })
+    end
+})
+
+MainTab:AddSlider({
+    Name = "跳跃高度",
+    Description = "调整角色的跳跃高度",
+    MinValue = 10,
+    MaxValue = 200,
+    Default = 50,
+    Callback = function(value)
+        JumpHeight = value
+        if JumpHeightEnabled then
+            ApplyJumpHeight()
+        end
+        OrionLib:MakeNotification({
+            Name = "跳跃高度已设置",
+            Content = "当前跳跃高度: " .. tostring(value),
+            Time = 2
+        })
+    end
+})
+
+SettingsTab:AddSection("配置")
+
+SettingsTab:AddSlider({
+    Name = "UI透明度",
+    Description = "调整界面透明度",
+    MinValue = 0,
+    MaxValue = 100,
+    Default = 50,
+    Callback = function(value)
+        OrionLib:MakeNotification({
+            Name = "透明度已设置",
+            Content = "UI透明度: " .. tostring(value),
+            Time = 2
+        })
+    end
+})
+
+HelpTab:AddParagraph("飞雷神功能提示", "如果你发现自己被传送到其他玩家身后，请检查是否开启了gb标签页中的飞雷神功能。\n\n如需关闭此功能：\n1. 打开上方的'gb'标签页\n2. 在'战斗功能'部分\n3. 关闭'无敌飞雷神'开关")
+
+HelpTab:AddButton({
+    Name = "立即关闭飞雷神",
+    Description = "快速停止自动传送",
+    Callback = function()
+        isActive = false
+        if heartbeatConnection then
+            heartbeatConnection:Disconnect()
+            heartbeatConnection = nil
+        end
+        OrionLib:MakeNotification({
+            Name = "已关闭",
+            Content = "飞雷神功能已停止",
+            Time = 3
+        })
+    end
+})
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    wait(1)
+    
+    local humanoid = character:WaitForChild("Humanoid")
+    OriginalJumpPower = humanoid.JumpPower
+    
+    if NoclipEnabled then
+        NoclipLoop()
+    end
+    
+    if SpinEnabled then
+        EnableSpin()
+    end
+    
+    if JumpHeightEnabled then
+        ApplyJumpHeight()
+    end
+end)
+
+task.spawn(function()
+    wait(2)
+    if game.Players.LocalPlayer.Character then
+        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            OriginalJumpPower = humanoid.JumpPower
+        end
+    end
+end)
+
+OrionLib:MakeNotification({
+    Name = "加载完成",
+    Content = "飞天剑云脚本已就绪，包含所有服务器功能",
+    Time = 3
+})
+
+OrionLib:Init()
